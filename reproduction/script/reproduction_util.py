@@ -33,9 +33,9 @@ from scgpt.utils import set_seed, PeftConfig, freeze_parameters, DownstreamTasks
 
 
 def load_adata(data_dir, fold, dataset, celltype_key):
-    adata = sc.read(data_dir / f"{fold}/{dataset}_train{fold}.h5ad")
-    adata_val = sc.read(data_dir / f"{fold}/{dataset}_val{fold}.h5ad")
-    adata_test = sc.read(data_dir / f"{fold}/{dataset}_test{fold}.h5ad")
+    adata = sc.read(data_dir / f"fold_{fold}/{dataset}_train{fold}.h5ad")
+    adata_val = sc.read(data_dir / f"fold_{fold}/{dataset}_val{fold}.h5ad")
+    adata_test = sc.read(data_dir / f"fold_{fold}/{dataset}_test{fold}.h5ad")
 
     adata.obs["celltype"] = adata.obs[celltype_key].astype("category")
     adata_val.obs["celltype"] = adata_val.obs[celltype_key].astype("category")
@@ -50,7 +50,7 @@ def load_adata(data_dir, fold, dataset, celltype_key):
     adata_test.var.set_index(adata_test.var["gene_name"], inplace=True)
 
     adata = adata.concatenate((adata_val, adata_test), batch_key="str_batch")
-    return adata, adata_test.copy()
+    return adata
 
 
 def load_and_process_data(
@@ -65,37 +65,31 @@ def load_and_process_data(
 
         data_is_raw = False
         celltype_key = "celltype"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "COVID":
         data_dir = Path("../data/celltype_identification/COVID")
 
         data_is_raw = True
         celltype_key = "cell_type"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "NSCLC":
         data_dir = Path("../data/celltype_identification/NSCLC")
 
         data_is_raw = True
         celltype_key = "cell_type"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
-    elif dataset_name == "MergedHuman":
-        data_dir = Path("../data/celltype_identification/MergedHuman")
-
-        data_is_raw = True
-        celltype_key = "CellType"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "MergedMonkey":
         data_dir = Path("../data/cross_species/MergedMonkey")
 
         data_is_raw = True
         celltype_key = "CellType"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "elegans":
         data_dir = Path("../data/cross_species/elegans")
 
         data_is_raw = True
         celltype_key = "tissue_name"
-        adata, adata_test_raw = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
 
     # make the batch category column
     batch_id_labels = adata.obs["str_batch"].astype("category").cat.codes.values
