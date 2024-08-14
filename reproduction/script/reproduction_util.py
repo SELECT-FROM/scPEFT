@@ -61,34 +61,52 @@ def load_and_process_data(
         logger,
 ):
     if dataset_name == "ms":
-        data_dir = Path("../data/celltype_identification/ms")
+        data_dir = Path(f"../data/celltype_identification/{dataset_name}")
 
         data_is_raw = False
         celltype_key = "celltype"
         adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "COVID":
-        data_dir = Path("../data/celltype_identification/COVID")
+        data_dir = Path(f"../data/celltype_identification/{dataset_name}")
 
         data_is_raw = True
         celltype_key = "cell_type"
         adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "NSCLC":
-        data_dir = Path("../data/celltype_identification/NSCLC")
+        data_dir = Path(f"../data/celltype_identification/{dataset_name}")
 
         data_is_raw = True
         celltype_key = "cell_type"
         adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "MergedMonkey":
-        data_dir = Path("../data/cross_species/MergedMonkey")
+        data_dir = Path(f"../data/cross_species/{dataset_name}")
 
         data_is_raw = True
         celltype_key = "CellType"
         adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
     elif dataset_name == "elegans":
-        data_dir = Path("../data/cross_species/elegans")
+        data_dir = Path(f"../data/cross_species/{dataset_name}")
 
         data_is_raw = True
         celltype_key = "tissue_name"
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+    elif dataset_name == "mouse_115746":
+        data_dir = Path(f"../data/cross_species/{dataset_name}")
+
+        data_is_raw = True
+        celltype_key = "celltype"
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+    elif dataset_name == "mouse_unified_10x":
+        data_dir = Path(f"../data/cross_species/{dataset_name}")
+
+        data_is_raw = True
+        celltype_key = "celltype"
+        adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
+    elif dataset_name == "mouse_unified_smart":
+        data_dir = Path(f"../data/cross_species/{dataset_name}")
+
+        data_is_raw = True
+        celltype_key = "celltype"
         adata = load_adata(data_dir, fold_index, dataset_name, celltype_key)
 
     # make the batch category column
