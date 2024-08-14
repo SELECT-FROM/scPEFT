@@ -539,9 +539,9 @@ def freeze_parameters(
         modules_to_update = [
             model.decoder.parameters(),
             model.mvc_decoder.parameters(),
-            model.model.grad_reverse_discriminator.parameters(),
-            model.model.batch_encoder.parameters(),
-            model.model.dsbn.parameters()
+            model.grad_reverse_discriminator.parameters(),
+            model.batch_encoder.parameters(),
+            model.dsbn.parameters()
         ]
 
     if task == DownstreamTasks.CaseControl:
@@ -556,7 +556,6 @@ def freeze_parameters(
             model.encoder.parameters(),
             model.value_encoder.parameters(),
             model.pert_encoder.parameters(),
-            model.bn.parameters(),
         ]
 
     assert modules_to_update
