@@ -160,7 +160,9 @@ class TransformerModel(nn.Module):
             explicit_zero_prob=explicit_zero_prob,
             use_batch_labels=use_batch_labels,
         )
-        self.cls_decoder = ClsDecoder(d_model, n_cls, nlayers=nlayers_cls)
+
+        if n_cls > 1:
+            self.cls_decoder = ClsDecoder(d_model, n_cls, nlayers=nlayers_cls)
         if do_mvc:
             self.mvc_decoder = MVCDecoder(
                 d_model,

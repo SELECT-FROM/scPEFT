@@ -1,5 +1,6 @@
 import os
 import math
+import copy
 from typing import Mapping, Optional, Tuple, Any, Union
 
 import torch
@@ -17,6 +18,8 @@ from .model import (
     ContinuousValueEncoder,
     FastTransformerEncoderWrapper,
     FlashTransformerEncoderLayer,
+    PeftTransformerEncoderLayer,
+    PeftTransformerEncoder
 )
 from ..utils import map_raw_id_to_vocab_id
 from .. import logger
@@ -24,31 +27,32 @@ from .. import logger
 
 class TransformerGenerator(nn.Module):
     def __init__(
-        self,
-        ntoken: int,
-        d_model: int,
-        nhead: int,
-        d_hid: int,
-        nlayers: int,
-        nlayers_cls: int,
-        n_cls: int,
-        vocab: Any,
-        dropout: float = 0.5,
-        pad_token: str = "<pad>",
-        pad_value: int = 0,
-        pert_pad_id: int = 2,
-        do_mvc: bool = False,
-        domain_spec_batchnorm: Union[bool, str] = False,
-        n_input_bins: Optional[int] = 0,
-        cell_emb_style: str = "cls",
-        mvc_decoder_style: str = "inner product",
-        decoder_activation: Optional[str] = None,
-        decoder_adaptive_bias: bool = False,
-        ecs_threshold: float = 0.3,
-        explicit_zero_prob: bool = False,
-        use_fast_transformer: bool = False,
-        fast_transformer_backend: str = "flash",
-        pre_norm: bool = False,
+            self,
+            ntoken: int,
+            d_model: int,
+            nhead: int,
+            d_hid: int,
+            nlayers: int,
+            nlayers_cls: int,
+            n_cls: int,
+            vocab: Any,
+            dropout: float = 0.5,
+            pad_token: str = "<pad>",
+            pad_value: int = 0,
+            pert_pad_id: int = 2,
+            do_mvc: bool = False,
+            domain_spec_batchnorm: Union[bool, str] = False,
+            n_input_bins: Optional[int] = 0,
+            cell_emb_style: str = "cls",
+            mvc_decoder_style: str = "inner product",
+            decoder_activation: Optional[str] = None,
+            decoder_adaptive_bias: bool = False,
+            ecs_threshold: float = 0.3,
+            explicit_zero_prob: bool = False,
+            use_fast_transformer: bool = False,
+            fast_transformer_backend: str = "flash",
+            pre_norm: bool = False,
+            peft_config: dict = None,
     ):
         super().__init__()
         self.model_type = "Transformer"
@@ -79,7 +83,7 @@ class TransformerGenerator(nn.Module):
         self.use_fast_transformer = use_fast_transformer
 
         self.encoder = GeneEncoder(ntoken, d_model, padding_idx=vocab[pad_token])
-        self.value_encoder = ContinuousValueEncoder(d_model, dropout)
+        self.value_encoder = ContinuousValueEncoder(d_model, dropout, peft_config=peft_config)
         self.pert_encoder = nn.Embedding(3, d_model, padding_idx=pert_pad_id)
 
         # print("Using simple batchnorm instead of domain specific batchnorm")
@@ -101,10 +105,29 @@ class TransformerGenerator(nn.Module):
                 )
                 self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         else:
-            encoder_layers = TransformerEncoderLayer(
-                d_model, nhead, d_hid, dropout, batch_first=True
-            )
-            self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
+            # Using original TransformerEncoder architecture if not use peft
+            if all(value is False for value in peft_config.values()):
+                encoder_layers = TransformerEncoderLayer(
+                    d_model, nhead, d_hid, dropout, batch_first=True
+                )
+                self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
+            else:
+                # Using peft TransformerEncoder architecture if use peft
+                encoder_layers = nn.ModuleList(
+                    [
+                        PeftTransformerEncoderLayer(
+                            d_model,
+                            nhead,
+                            d_hid,
+                            dropout,
+                            batch_first=True,
+                            index=index,
+                            peft_config=copy.deepcopy(peft_config)
+                        )
+                        for index in range(nlayers)
+                    ]
+                )
+                self.transformer_encoder = PeftTransformerEncoder(encoder_layers)
 
         # self.decoder = nn.Linear(d_model, 1)
         self.decoder = AffineExprDecoder(
@@ -113,7 +136,9 @@ class TransformerGenerator(nn.Module):
             activation=decoder_activation,
             adaptive_bias=decoder_adaptive_bias,
         )
-        self.cls_decoder = ClsDecoder(d_model, n_cls, nlayers=nlayers_cls)
+
+        if n_cls > 1:
+            self.cls_decoder = ClsDecoder(d_model, n_cls, nlayers=nlayers_cls)
         if do_mvc:
             self.mvc_decoder = MVCDecoder(
                 d_model,
@@ -128,11 +153,11 @@ class TransformerGenerator(nn.Module):
         self.encoder.embedding.weight.data.uniform_(-initrange, initrange)
 
     def _encode(
-        self,
-        src: Tensor,
-        values: Tensor,
-        input_pert_flags,
-        src_key_padding_mask: Tensor,
+            self,
+            src: Tensor,
+            values: Tensor,
+            input_pert_flags,
+            src_key_padding_mask: Tensor,
     ) -> Tensor:
         src = self.encoder(src)  # (batch, seq_len, embsize)
         self.cur_gene_token_embs = src
@@ -147,7 +172,7 @@ class TransformerGenerator(nn.Module):
         return output  # (batch, seq_len, embsize)
 
     def _get_cell_emb_from_layer(
-        self, layer_output: Tensor, weights: Tensor = None
+            self, layer_output: Tensor, weights: Tensor = None
     ) -> Tensor:
         """
         Args:
@@ -173,16 +198,16 @@ class TransformerGenerator(nn.Module):
         return cell_emb
 
     def forward(
-        self,
-        src: Tensor,
-        values: Tensor,
-        input_pert_flags: Tensor,
-        src_key_padding_mask: Tensor,
-        CLS: bool = False,
-        CCE: bool = False,
-        MVC: bool = False,
-        ECS: bool = False,
-        do_sample: bool = False,
+            self,
+            src: Tensor,
+            values: Tensor,
+            input_pert_flags: Tensor,
+            src_key_padding_mask: Tensor,
+            CLS: bool = False,
+            CCE: bool = False,
+            MVC: bool = False,
+            ECS: bool = False,
+            do_sample: bool = False,
     ) -> Mapping[str, Tensor]:
         """
         Args:
@@ -262,12 +287,12 @@ class TransformerGenerator(nn.Module):
         return output
 
     def encode_batch(
-        self,
-        src: Tensor,
-        values: Tensor,
-        src_key_padding_mask: Tensor,
-        batch_size: int,
-        output_to_cpu: bool = True,
+            self,
+            src: Tensor,
+            values: Tensor,
+            src_key_padding_mask: Tensor,
+            batch_size: int,
+            output_to_cpu: bool = True,
     ) -> Tensor:
         """
         Args:
@@ -283,9 +308,9 @@ class TransformerGenerator(nn.Module):
         device = next(self.parameters()).device
         for i in trange(0, N, batch_size):
             output = self._encode(
-                src[i : i + batch_size].to(device),
-                values[i : i + batch_size].to(device),
-                src_key_padding_mask[i : i + batch_size].to(device),
+                src[i: i + batch_size].to(device),
+                values[i: i + batch_size].to(device),
+                src_key_padding_mask[i: i + batch_size].to(device),
             )
             if output_to_cpu:
                 output = output.cpu()
@@ -293,11 +318,11 @@ class TransformerGenerator(nn.Module):
         return torch.cat(outputs, dim=0)
 
     def pred_perturb(
-        self,
-        batch_data,
-        include_zero_gene="batch-wise",
-        gene_ids=None,
-        amp=True,
+            self,
+            batch_data,
+            include_zero_gene="batch-wise",
+            gene_ids=None,
+            amp=True,
     ) -> Tensor:
         """
         Args:
@@ -356,10 +381,10 @@ def generate_square_subsequent_mask(sz: int) -> Tensor:
 
 class GeneEncoder(nn.Module):
     def __init__(
-        self,
-        num_embeddings: int,
-        embedding_dim: int,
-        padding_idx: Optional[int] = None,
+            self,
+            num_embeddings: int,
+            embedding_dim: int,
+            padding_idx: Optional[int] = None,
     ):
         super().__init__()
         self.embedding = nn.Embedding(
@@ -375,12 +400,12 @@ class GeneEncoder(nn.Module):
 
 class AffineExprDecoder(nn.Module):
     def __init__(
-        self,
-        d_model: int,
-        explicit_zero_prob: bool = False,
-        activation: Optional[str] = None,
-        tanh_coeff: bool = False,
-        adaptive_bias: bool = False,
+            self,
+            d_model: int,
+            explicit_zero_prob: bool = False,
+            activation: Optional[str] = None,
+            tanh_coeff: bool = False,
+            adaptive_bias: bool = False,
     ):
         """
         Predict the expression value of each gene in an affine like form of Ax + b.
@@ -443,11 +468,11 @@ class AffineExprDecoder(nn.Module):
 
 class TokenEmbedding(nn.Module):
     def __init__(
-        self,
-        num_embeddings: int,
-        embedding_dim: int,
-        padding_idx: Optional[int] = None,
-        zero_out_idx: Optional[int] = None,
+            self,
+            num_embeddings: int,
+            embedding_dim: int,
+            padding_idx: Optional[int] = None,
+            zero_out_idx: Optional[int] = None,
     ):
         """
         Generic token embedding module.
@@ -524,11 +549,11 @@ class ClsDecoder(nn.Module):
     """
 
     def __init__(
-        self,
-        d_model: int,
-        n_cls: int,
-        nlayers: int = 3,
-        activation: callable = nn.ReLU,
+            self,
+            d_model: int,
+            n_cls: int,
+            nlayers: int = 3,
+            activation: callable = nn.ReLU,
     ):
         super().__init__()
         # module list
