@@ -53,7 +53,7 @@ We sincerely thank the authors of following open-source projects:
 - [datasets](https://github.com/huggingface/datasets)
 - [transformers](https://github.com/huggingface/transformers)
 
-## Citing scGPT
+## Citing scPEFT
 
 ```bibtex
 @article {He2024.01.27.577455,
