@@ -50,7 +50,6 @@ We sincerely thank the authors of following open-source projects:
 - [scanpy](https://github.com/scverse/scanpy)
 - [scib](https://github.com/theislab/scib)
 - [pytorch](https://github.com/pytorch/pytorch)
-- [transformers](https://github.com/huggingface/transformers)
 
 ## Citing scPEFT
 
