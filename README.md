@@ -34,7 +34,7 @@ cd scPEFT
    | cell type identification | [Tutorial_Identification.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Identification.ipynb) |
    | batch correction         | [Tutorial_BatchCorrection.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_BatchCorrection.ipynb) |
    | perturbation             | [Tutorial_Perturbation.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
-   | case control             | [Tutorial_CaseControl.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
+   | cell population discovery             | [Tutorial_CellPopulationDiscovery.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
 
    
 
@@ -48,9 +48,8 @@ We sincerely thank the authors of following open-source projects:
 
 - [scGPT](https://github.com/bowang-lab/scGPT)
 - [scanpy](https://github.com/scverse/scanpy)
-- [scvi-tools](https://github.com/scverse/scvi-tools)
 - [scib](https://github.com/theislab/scib)
-- [datasets](https://github.com/huggingface/datasets)
+- [pytorch](https://github.com/pytorch/pytorch)
 - [transformers](https://github.com/huggingface/transformers)
 
 ## Citing scPEFT
