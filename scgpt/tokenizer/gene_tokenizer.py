@@ -23,11 +23,11 @@ class GeneVocab(Vocab):
     """
 
     def __init__(
-        self,
-        gene_list_or_vocab: Union[List[str], Vocab],
-        specials: Optional[List[str]] = None,
-        special_first: bool = True,
-        default_token: Optional[str] = "<pad>",
+            self,
+            gene_list_or_vocab: Union[List[str], Vocab],
+            specials: Optional[List[str]] = None,
+            special_first: bool = True,
+            default_token: Optional[str] = "<pad>",
     ) -> None:
         """
         Initialize the vocabulary.
@@ -86,9 +86,9 @@ class GeneVocab(Vocab):
 
     @classmethod
     def from_dict(
-        cls,
-        token2idx: Dict[str, int],
-        default_token: Optional[str] = "<pad>",
+            cls,
+            token2idx: Dict[str, int],
+            default_token: Optional[str] = "<pad>",
     ) -> Self:
         """
         Load the vocabulary from a dictionary.
@@ -109,11 +109,11 @@ class GeneVocab(Vocab):
         return _vocab
 
     def _build_vocab_from_iterator(
-        self,
-        iterator: Iterable,
-        min_freq: int = 1,
-        specials: Optional[List[str]] = None,
-        special_first: bool = True,
+            self,
+            iterator: Iterable,
+            min_freq: int = 1,
+            specials: Optional[List[str]] = None,
+            special_first: bool = True,
     ) -> Vocab:
         """
         Build a Vocab from an iterator. This function is modified from
@@ -211,8 +211,8 @@ def get_default_gene_vocab() -> GeneVocab:
 
 
 def _build_default_gene_vocab(
-    download_source_to: str = "/tmp",
-    save_vocab_to: Union[Path, str, None] = None,
+        download_source_to: str = "/tmp",
+        save_vocab_to: Union[Path, str, None] = None,
 ) -> GeneVocab:
     """
     Build the default gene vocabulary from HGNC gene symbols.
@@ -223,7 +223,7 @@ def _build_default_gene_vocab(
             the vocabulary will not be saved. Default to None.
     """
     gene_collection_file = (
-        Path(download_source_to) / "human.gene_name_symbol.from_genenames.org.tsv"
+            Path(download_source_to) / "human.gene_name_symbol.from_genenames.org.tsv"
     )
     if not gene_collection_file.exists():
         # download and save file from url
@@ -247,14 +247,14 @@ def _build_default_gene_vocab(
 
 
 def tokenize_batch(
-    data: np.ndarray,
-    gene_ids: np.ndarray,
-    return_pt: bool = True,
-    append_cls: bool = True,
-    include_zero_gene: bool = False,
-    cls_id: int = "<cls>",
-    mod_type: np.ndarray = None,
-    cls_id_mod_type: int = None,
+        data: np.ndarray,
+        gene_ids: np.ndarray,
+        return_pt: bool = True,
+        append_cls: bool = True,
+        include_zero_gene: bool = False,
+        cls_id: int = "<cls>",
+        mod_type: np.ndarray = None,
+        cls_id_mod_type: int = None,
 ) -> List[Tuple[Union[torch.Tensor, np.ndarray]]]:
     """
     Tokenize a batch of data. Returns a list of tuple (gene_id, count).
@@ -310,13 +310,13 @@ def tokenize_batch(
 
 
 def pad_batch(
-    batch: List[Tuple],
-    max_len: int,
-    vocab: Vocab,
-    pad_token: str = "<pad>",
-    pad_value: int = 0,
-    cls_appended: bool = True,
-    vocab_mod: Vocab = None,
+        batch: List[Tuple],
+        max_len: int,
+        vocab: Vocab,
+        pad_token: str = "<pad>",
+        pad_value: int = 0,
+        cls_appended: bool = True,
+        vocab_mod: Vocab = None,
 ) -> Dict[str, torch.Tensor]:
     """
     Pad a batch of data. Returns a list of Dict[gene_id, count].
@@ -397,18 +397,18 @@ def pad_batch(
 
 
 def tokenize_and_pad_batch(
-    data: np.ndarray,
-    gene_ids: np.ndarray,
-    max_len: int,
-    vocab: Vocab,
-    pad_token: str,
-    pad_value: int,
-    append_cls: bool = True,
-    include_zero_gene: bool = False,
-    cls_token: str = "<cls>",
-    return_pt: bool = True,
-    mod_type: np.ndarray = None,
-    vocab_mod: Vocab = None,
+        data: np.ndarray,
+        gene_ids: np.ndarray,
+        max_len: int,
+        vocab: Vocab,
+        pad_token: str,
+        pad_value: int,
+        append_cls: bool = True,
+        include_zero_gene: bool = False,
+        cls_token: str = "<cls>",
+        return_pt: bool = True,
+        mod_type: np.ndarray = None,
+        vocab_mod: Vocab = None,
 ) -> Dict[str, torch.Tensor]:
     """
     Tokenize and pad a batch of data. Returns a list of tuple (gene_id, count).
@@ -440,10 +440,11 @@ def tokenize_and_pad_batch(
 
 
 def random_mask_value(
-    values: Union[torch.Tensor, np.ndarray],
-    mask_ratio: float = 0.15,
-    mask_value: int = -1,
-    pad_value: int = 0,
+        values: Union[torch.Tensor, np.ndarray],
+        mask_ratio: float = 0.15,
+        mask_value: int = -1,
+        pad_value: int = 0,
+        except_cls: bool = False
 ) -> torch.Tensor:
     """
     Randomly mask a batch of data.
@@ -467,6 +468,8 @@ def random_mask_value(
     for i in range(len(values)):
         row = values[i]
         non_padding_idx = np.nonzero(row - pad_value)[0]
+        if except_cls:
+            non_padding_idx = non_padding_idx[1:]
         n_mask = int(len(non_padding_idx) * mask_ratio)
         mask_idx = np.random.choice(non_padding_idx, n_mask, replace=False)
         row[mask_idx] = mask_value
