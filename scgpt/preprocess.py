@@ -31,8 +31,8 @@ class TFPreprocessor:
             hvg_flavor: str = "seurat_v3",
             binning: Optional[int] = None,
             result_binned_key: str = "X_binned",
-            TF_genes: Optional[list] = None,
-            PriorMarkers: Optional[list] = None,
+            tfs: Optional[list] = None,
+            prior_markers: Optional[list] = None,
     ):
         r"""
         Set up the preprocessor, use the args to config the workflow steps.
@@ -79,10 +79,8 @@ class TFPreprocessor:
         self.hvg_flavor = hvg_flavor
         self.binning = binning
         self.result_binned_key = result_binned_key
-        self.PriorMarkers = PriorMarkers
-
-        # for load TF genes
-        self.TF_genes = TF_genes
+        self.prior_markers = prior_markers
+        self.tfs = tfs
 
     def __call__(self, adata: AnnData, batch_key: Optional[str] = None) -> Dict:
         """
@@ -178,30 +176,30 @@ class TFPreprocessor:
                 subset=True,
             )
 
-        # step 6.1: append PriorMarkers
-        if self.PriorMarkers:
-            logger.info("Append Prior markers to gene list ...")
-            self.TF_genes.extend(self.PriorMarkers)
+        # step 6.1: append prior_markers
+        if self.prior_markers:
+            logger.info("Appending prior markers to gene list ...")
+            self.tfs.extend(self.prior_markers)
 
-        # step 6.2: append TF genes
-        if self.TF_genes:
-            logger.info("Append TF genes to highly variable genes ...")
+        # step 6.2: append tfs
+        if self.tfs:
+            logger.info("Appending transcription factor to gene list ...")
             # calculate the overlap of all genes and FT genes
             complete_genes = complete_adata.var.index.tolist()
-            TF_genes = [TF_gene for TF_gene in self.TF_genes if TF_gene in complete_genes]
+            tfs = [tf for tf in self.tfs if tf in complete_genes]
 
-            # add FT genes
+            # add tfs
             HVG_genes = adata.var.index.tolist()
-            HVG_genes.extend(TF_genes)
+            HVG_genes.extend(tfs)
 
-            # unique the new FTs and HVGs
-            HVGs_FTs = list(set(HVG_genes))
-            complete_adata.var["HVG_TF_flag"] = [1 if gene in HVGs_FTs else 0 for gene in complete_genes]
+            # unique the new tfs and HVGs
+            HVGs_TFs = list(set(HVG_genes))
+            complete_adata.var["HVG_TF_flag"] = [1 if gene in HVGs_TFs else 0 for gene in complete_genes]
             complete_adata = complete_adata[:, complete_adata.var["HVG_TF_flag"] > 0]
             del complete_adata.var["HVG_TF_flag"]
 
             assert (sorted(complete_adata.var.index.tolist()) == sorted(
-                HVGs_FTs)), "The extended code for append TF genes have errors..."
+                HVGs_TFs)), "The extended code for append tfs have errors..."
             adata = complete_adata
             if isinstance(adata.layers[key_to_process], anndata._core.views.ArrayView):
                 adata.layers[key_to_process] = np.array(adata.layers[key_to_process])
