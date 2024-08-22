@@ -34,7 +34,7 @@ cd scPEFT
    | cell type identification | [Tutorial_Identification.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Identification.ipynb) |
    | batch correction         | [Tutorial_BatchCorrection.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_BatchCorrection.ipynb) |
    | perturbation             | [Tutorial_Perturbation.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
-   | cell population discovery             | [Tutorial_CellPopulationDiscovery.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
+   | cell population discovery             | [Tutorial_CellPopulationDiscovery.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_CellPopulationDiscovery.ipynb) |
 
    
 
