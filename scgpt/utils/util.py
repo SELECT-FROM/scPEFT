@@ -10,7 +10,7 @@ from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-import pandas as pd
+from torchtext.vocab import Vocab
 from anndata import AnnData
 from matplotlib import pyplot as plt
 from matplotlib import axes
@@ -145,6 +145,20 @@ class PeftConfig:
             representation["LoRA_FLAG"] = self.LoRA_FLAG
 
         return representation
+
+
+def load_tfs(tfs_file_path: Path, vocab: Vocab):
+    """
+       Load tf genes from file.
+    """
+
+    with open(tfs_file_path, 'r') as file:
+        tfs = [line.strip() for line in file.readlines()]
+
+    # filter tfs, which is not in vocab
+    tfs = [tf for tf in tfs if tf in vocab]
+
+    return tfs
 
 
 def gene_vocabulary():
@@ -495,10 +509,10 @@ def load_pretrained(
 
 
 class DownstreamTasks(Enum):
-    CaseControl = "casecontrol"
     Perturbation = "perturbation"
     Identification = "identification"
     BatchCorrection = "batchcorrection"
+    CellPopulationDiscovery = "cellpopulationdiscovery"
 
 
 def freeze_parameters(
@@ -544,7 +558,7 @@ def freeze_parameters(
             model.dsbn.parameters()
         ]
 
-    if task == DownstreamTasks.CaseControl:
+    if task == DownstreamTasks.CellPopulationDiscovery:
         modules_to_update = [
             model.decoder.parameters(),
             model.mvc_decoder.parameters(),
