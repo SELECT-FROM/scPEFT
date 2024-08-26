@@ -2,7 +2,9 @@
 
 This is the official repository for **scPEFT: Parameter-Efficient Fine-Tuning Enhances Adaptation of Single Cell Large Language Model.**
 
-[![Preprint](https://img.shields.io/badge/preprint-available-brightgreen)](https://www.biorxiv.org/content/10.1101/2024.01.27.577455v1) &nbsp;
+[![Preprint](https://img.shields.io/badge/preprint-available-brightgreen)](https://www.biorxiv.org/content/10.1101/2024.01.27.577455v1) 
+
+[![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/username/repo/blob/main/LICENSE)
 
 ## Installation
 
@@ -35,7 +37,8 @@ cd scPEFT
    | batch correction         | [Tutorial_BatchCorrection.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_BatchCorrection.ipynb) |
    | perturbation             | [Tutorial_Perturbation.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
    | cell population discovery             | [Tutorial_CellPopulationDiscovery.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_CellPopulationDiscovery.ipynb) |
-
+| marker gene detection | [Tutorial_MarkerGeneDetection.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_MarkerGeneDetection.ipynb) |
+   
    
 
 ## Contributing
