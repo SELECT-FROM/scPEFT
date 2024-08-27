@@ -1000,8 +1000,8 @@ class PeftTransformerEncoderLayer(nn.Module):
             layer_index = kwargs.pop("layer_index", -1)
             assert layer_index > -1, "layer_index should be greater than -1."
 
-            # fix bug: When use prefix adapter tuning, the mask dont match with src
-            if self.n_layers_conf[layer_index]:
+            # fix bug: When use prefix adapter tuning, the mask not match with src
+            if self.n_layers_conf[layer_index] or layer_index >= self.n_layers_conf.index(True):
                 prefix_mask = torch.full(
                     (len(src), self.token_nums),
                     src_key_padding_mask[0][0].item(),
@@ -1289,6 +1289,37 @@ class Adapter(nn.Module):
         xs = self.fc2(xs)
         x = x + xs if self.skip_connect else xs
         return x
+
+# class Adapter(nn.Module):
+#     def __init__(
+#             self,
+#             feature_dim: int,
+#             mlp_ratio: float = 0.25,
+#             activation_function: str = "GELU",
+#             use_residual_connection: bool = True,
+#             **kwargs
+#     ):
+#         """Adapter Module integrating MLP and activation.
+#
+#            Args:
+#                feature_dim (int): Input feature dimension.
+#                mlp_ratio (float): Ratio to calculate hidden dimension.
+#                activation_function (str): Activation function name (e.g., 'GELU', 'ReLU').
+#                use_residual_connection (bool): Flag to use residual connection.
+#          """
+#         super().__init__()
+#         self.use_residual_connection = use_residual_connection
+#         hidden_dim = int(feature_dim * mlp_ratio)
+#         self.activation = getattr(nn, activation_function)()
+#         self.fc1 = nn.Linear(feature_dim, hidden_dim)
+#         self.fc2 = nn.Linear(hidden_dim, feature_dim)
+#
+#     def forward(self, x):
+#         xs = self.activation(self.fc1(x))
+#         xs = self.fc2(xs)
+#
+#         x = x + xs if self.use_residual_connection else xs
+#         return x
 
 
 class ContinuousValueEncoder(nn.Module):
