@@ -51,34 +51,57 @@ class PeftConfig:
         enable_lora: the setting is only using in LoRA
 
     Examples::
-        >>> peft_config = PeftConfig(peft_type="LORA",r=8,lora_alpha=1).to_dict()
+        >>> peft_config = PeftConfig(
+        >>>    peft_type="LORA",
+        >>>    r=8,
+        >>>    lora_alpha=1,
+        >>>    adapter_layer_conf=[True for _ in range(12)]
+        >>> ).to_dict()l
         >>> print(peft_config)
     """
 
-    model_nlayers: int = 12
-    peft_type: Union[str, bool] = False
+    use_default_settinga: Union[bool] = False
+    model_nlayers: Union[int] = 12
+
+    peft_type: Union[str, bool] = None
     adapter_layer_conf: List[bool] = None
 
     # Settings for Encoder/Hybrid/Token Adapter
-    mlp_ratio: float = 0.25
-    skip_connect: bool = True
+    mlp_ratio: Union[float] = None
+    skip_connect: Union[bool] = None
 
     # Settings for Prefix Adapter
-    token_nums = 64
+    token_nums: Union[int] = None
 
     # Settings for LoRA
-    r: int = 8
-    lora_alpha: int = 1
-    enable_lora: List[bool] = field(default_factory=lambda: [True, False, True])
+    r: Union[int] = None
+    lora_alpha: Union[int] = None
+    enable_lora: List[bool] = None
 
     def __post_init__(self):
         # Default settings for adapters
-        if self.adapter_layer_conf is None:
-            if self.peft_type in ["HYBRID", "ENCODER"]:
-                self.adapter_layer_conf = [item <= int(self.model_nlayers / 2) for item in
-                                           range(1, self.model_nlayers + 1)]
-            if self.peft_type in ["PREFIX", "LORA"]:
-                self.adapter_layer_conf = [True for _ in range(1, self.model_nlayers + 1)]
+        if self.use_default_settinga:
+            self.adapter_layer_conf = [item <= int(self.model_nlayers / 2) for item in range(1, self.model_nlayers + 1)]
+
+            if self.peft_type == "HYBRID":
+                self.mlp_ratio = 0.25
+                self.skip_connect = True
+
+            if self.peft_type == "ENCODER":
+                self.mlp_ratio = 0.25
+                self.skip_connect = True
+
+            if self.peft_type == "TOKEN":
+                self.mlp_ratio = 1
+                self.skip_connect = True
+
+            if self.peft_type == "PREFIX":
+                self.token_nums = 8
+
+            if self.peft_type == "LORA":
+                self.r = 8
+                self.lora_alpha = 1
+                self.enable_lora = [True, False, True]
 
         # Setting flags based on peft_type
         self.set_flags()
@@ -567,7 +590,7 @@ def freeze_parameters(
     if task == DownstreamTasks.Perturbation:
         modules_to_update = [
             model.decoder.parameters(),
-            model.encoder.parameters(),
+            # model.encoder.parameters(),
             model.value_encoder.parameters(),
             model.pert_encoder.parameters(),
         ]
