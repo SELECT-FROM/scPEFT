@@ -60,7 +60,7 @@ class PeftConfig:
         >>> print(peft_config)
     """
 
-    use_default_settinga: Union[bool] = False
+    use_default_settings: Union[bool] = False
     model_nlayers: Union[int] = 12
 
     peft_type: Union[str, bool] = None
