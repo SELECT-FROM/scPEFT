@@ -997,11 +997,11 @@ class PeftTransformerEncoderLayer(nn.Module):
                 )
 
         if getattr(self, "PREFIX_FLAG", False):
-            layer_index = kwargs.pop("layer_index", -1)
+            layer_index = kwargs.get("layer_index", -1)
             assert layer_index > -1, "layer_index should be greater than -1."
 
             # fix bug: When use prefix adapter tuning, the mask not match with src
-            if self.n_layers_conf[layer_index] or layer_index >= self.n_layers_conf.index(True):
+            if layer_index >= self.n_layers_conf.index(True):
                 prefix_mask = torch.full(
                     (len(src), self.token_nums),
                     src_key_padding_mask[0][0].item(),
@@ -1042,6 +1042,15 @@ class PeftTransformerEncoderLayer(nn.Module):
                 self.norm1(x + self._sa_block(x, src_mask, src_key_padding_mask, is_causal=is_causal))
             )
             x = self.norm2(x + self._ff_block(x))
+
+        if getattr(self, "PREFIX_FLAG", False):
+            layer_index = kwargs.get("layer_index", -1)
+            assert layer_index > -1, "layer_index should be greater than -1."
+
+            if layer_index == len(self.n_layers_conf) - 1:
+                cell_embeddings = x[:, 0:1, :]
+                gene_embeddings = x[:, (1 + self.token_nums):, :]
+                x = torch.cat((cell_embeddings, gene_embeddings), dim=1)
 
         return x
 
@@ -1289,6 +1298,7 @@ class Adapter(nn.Module):
         xs = self.fc2(xs)
         x = x + xs if self.skip_connect else xs
         return x
+
 
 # class Adapter(nn.Module):
 #     def __init__(
