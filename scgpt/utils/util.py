@@ -80,7 +80,7 @@ class PeftConfig:
 
     def __post_init__(self):
         # Default settings for adapters
-        if self.use_default_settinga:
+        if self.use_default_settings:
             self.adapter_layer_conf = [item <= int(self.model_nlayers / 2) for item in range(1, self.model_nlayers + 1)]
 
             if self.peft_type == "HYBRID":
