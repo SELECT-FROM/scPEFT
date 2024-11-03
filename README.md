@@ -1,6 +1,6 @@
 # scPEFT
 
-This is the official repository for **scPEFT: Parameter-Efficient Fine-Tuning Enhances Adaptation of Single Cell Large Language Model.**
+This is the official repository for **Harnessing the Power of Single Cell Large Language Models with Parameter Efficient Fine-Tuning**
 
 [![Preprint](https://img.shields.io/badge/preprint-available-brightgreen)](https://www.biorxiv.org/content/10.1101/2024.01.27.577455v1) &nbsp;
 [![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/username/repo/blob/main/LICENSE)
