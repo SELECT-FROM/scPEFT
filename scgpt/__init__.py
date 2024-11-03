@@ -1,4 +1,5 @@
 __version__ = "0.2.1"
+
 import logging
 import sys
 
@@ -15,7 +16,7 @@ if not logger.hasHandlers() or len(logger.handlers) == 0:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-from . import model, tokenizer, scbank, utils, tasks
+from . import model, tokenizer, utils, tasks
 from .data_collator import DataCollator
 from .data_sampler import SubsetsBatchSampler
 from .trainer import (
