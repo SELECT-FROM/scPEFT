@@ -56,7 +56,7 @@ class PeftConfig:
         >>>    r=8,
         >>>    lora_alpha=1,
         >>>    adapter_layer_conf=[True for _ in range(12)]
-        >>> ).to_dict()l
+        >>> ).to_dict()
         >>> print(peft_config)
     """
 
