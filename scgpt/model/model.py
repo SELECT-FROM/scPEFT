@@ -1012,15 +1012,15 @@ class PeftTransformerEncoderLayer(nn.Module):
 
             def _forward_prefix_embedding_(
                     src: Tensor,
+                    is_first_layer: bool,
                     prefix_embedding: Tensor,
-                    is_first_layer: bool
             ):
-                prefix_embedding = torch.repeat_interleave(prefix_embedding, repeats=len(src), dim=0)
+                prefix_embeddings = torch.repeat_interleave(prefix_embedding, repeats=len(src), dim=0)
 
-                cls_token_embedding = src[:, :1, :]
-                gene_token_embedding = src[:, 1:, :] if is_first_layer else src[:, (1 + self.token_nums):, :]
+                cell_embeddings = src[:, :1, :]
+                gene_embeddings = src[:, 1:, :] if is_first_layer else src[:, (1 + self.token_nums):, :]
 
-                return torch.cat((cls_token_embedding, prefix_embedding, gene_token_embedding), dim=1)
+                return torch.cat((cell_embeddings, prefix_embeddings, gene_embeddings), dim=1)
 
             is_first_layer = layer_index == self.n_layers_conf.index(True)
             prefix_args = {
