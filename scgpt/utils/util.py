@@ -26,29 +26,29 @@ class PeftConfig:
     to control whether to use PEFT, and if so, which adapter to choose.
 
     Args:
-        model_nlayers: the number of model layers, default is 12.
+        use_default_settings: Whether to use the default settings of scPEFT.
 
-        peft_type: the type of Parameter-Efficient Fine-Tuning (required),
+        model_nlayers: The number of model layers; the default is 12.
+
+        peft_type: The type of Parameter-Efficient Fine-Tuning (required),
             default is false, which means is not using Parameter-Efficient Fine-Tuning.
             If users want to use Parameter-Efficient Fine-Tuning,you can choose HYBRID/ENCODER/TOKEN/PREFIX/LORA
 
-        adapter_layer_conf: which layers do you want the adapter to be applied to in the configuration.
-            ENCODER/HYBRID adapter is used by default in the first six layers.
-            LORA/PREVIX adapter is used by default on all layers.
+        adapter_layer_conf: The layer to which you want the adapter to be applied in the configuration.
 
-        mlp_ratio: used to control adapter hidden dim, default is 0.25.
-            this settings is only using in TOKEN/ENCODER/HYBRID adapter.
+        mlp_ratio: Used to control the hidden dimension of the adapter.
+            This setting is only used in TOKEN, ENCODER, or HYBRID adapters.
 
-        skip_connect: used to control whether the adapter only uses residual connections, default is true
-            this settings is only using in TOKEN/ENCODER/HYBRID adapter.
+        skip_connect: Used to control whether the adapter uses residual connections, default is true
+            This setting is only used in TOKEN/ENCODER/HYBRID adapter.
 
-        token_nums: the number of peft embedding, which is only used in PREFIX adapter
+        token_nums: The number of PEFT embeddings, which is only used in the PREFIX adapter.
 
-        r: the setting is only using in LoRA
+        r: This setting is only used in LoRA.
 
-        lora_alpha: the setting is only using in LoRA
+        lora_alpha: This setting is only used in LoRA.
 
-        enable_lora: the setting is only using in LoRA
+        enable_lora: This setting is only used in LoRA.
 
     Examples::
         >>> peft_config = PeftConfig(
@@ -60,8 +60,8 @@ class PeftConfig:
         >>> print(peft_config)
     """
 
-    use_default_settings: Union[bool] = False
     model_nlayers: Union[int] = 12
+    use_default_settings: Union[bool] = False
 
     peft_type: Union[str, bool] = None
     adapter_layer_conf: List[bool] = None
