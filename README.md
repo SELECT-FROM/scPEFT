@@ -49,6 +49,7 @@ cd scPEFT
 - [x] Publish to pypi
 - [x] Adapting scPEFT for native-attention
 - [ ] Adapting scPEFT for flash-attention
+- [ ] Only retain PEFT-related parameters when saving peft-model weights.
 
 ## Contributing
 
