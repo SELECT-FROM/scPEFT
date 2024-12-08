@@ -24,6 +24,8 @@ git clone https://github.com/SELECT-FROM/scPEFT
 cd scPEFT
 ```
 
+**Note**: [requirements. ymal](https://github.com/SELECT-FROM/scPEFT/blob/main/requirements.yaml) are all the dependency versions we recommend using. To ensure smooth code operation, please try to keep them consistent with these package versions as much as possible
+
 ## Get Started
 
 1. Download the upstream
@@ -37,7 +39,7 @@ cd scPEFT
    downstream tasks and tutorials mentioned in our article
 
    | Downstream task           | Link                                                         |
-      |:--------------------------| :----------------------------------------------------------- |
+   |:--------------------------| :----------------------------------------------------------- |
    | cell type identification  | [Tutorial_Identification.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Identification.ipynb) |
    | batch correction          | [Tutorial_BatchCorrection.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_BatchCorrection.ipynb) |
    | perturbation              | [Tutorial_Perturbation.ipynb](https://github.com/SELECT-FROM/scPEFT/blob/main/tutorial_peft/Tutorial_Perturbation.ipynb) |
