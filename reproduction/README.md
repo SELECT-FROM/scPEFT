@@ -43,3 +43,7 @@
 - Adamson:[link](https://mailmissouri-my.sharepoint.com/:f:/r/personal/hefe_umsystem_edu/Documents/scPEFT_datasets/perturbation/adamson?csf=1&web=1&e=NINPQG)
 
 - Norman:[link](https://mailmissouri-my.sharepoint.com/:f:/r/personal/hefe_umsystem_edu/Documents/scPEFT_datasets/perturbation/norman?csf=1&web=1&e=1ZMm3y)
+
+- Replogle_k562:[link](https://mailmissouri-my.sharepoint.com/:f:/r/personal/hefe_umsystem_edu/Documents/scPEFT_checkpoints/perturbation/replogle_k562_essential?csf=1&web=1&e=crrxnh)
+
+- Replogle_rpe1:[link](https://mailmissouri-my.sharepoint.com/:f:/r/personal/hefe_umsystem_edu/Documents/scPEFT_checkpoints/perturbation/replogle_rpe1_essential?csf=1&web=1&e=hlvQs9)
